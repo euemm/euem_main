@@ -72,7 +72,7 @@ export function TopNav({
 						) : (
 							<div className="flex items-center gap-1.5 sm:gap-2">
 								<Image
-									src={theme === 'light' ? '/EUEM_LIGHT.png' : '/EUEM_DARK.png'}
+									src={theme === 'light' ? '/img/EUEM_LIGHT.png' : '/img/EUEM_DARK.png'}
 									alt="EUEM Logo"
 									width={32}
 									height={32}
