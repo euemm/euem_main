@@ -2,7 +2,7 @@
 
 A modern, responsive portfolio website built with Next.js 14, showcasing full-stack development projects and skills. Features a sleek design with dark/light theme support, smooth animations, and an intuitive user experience.
 
-![Next.js](https://img.shields.io/badge/Next.js-14.0.4-black)
+![Next.js](https://img.shields.io/badge/Next.js-14.2.33-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.3.6-38B2AC)
 ![React](https://img.shields.io/badge/React-18.2.0-61DAFB)
@@ -39,7 +39,7 @@ A modern, responsive portfolio website built with Next.js 14, showcasing full-st
 ## 🛠 Technology Stack
 
 ### **Frontend Framework**
-- **Next.js 14.0.4** - React framework with App Router
+- **Next.js 14.2.33** - React framework with App Router
 - **React 18.2.0** - UI library with hooks and concurrent features
 - **TypeScript 5.3.3** - Type-safe JavaScript with strict mode
 
@@ -56,9 +56,11 @@ A modern, responsive portfolio website built with Next.js 14, showcasing full-st
 - **PostCSS** - CSS processing and optimization
 
 ### **Build & Deployment**
-- **Vercel** - Optimized deployment platform
+- **Vercel** - Optimized deployment platform (recommended for ease)
+- **PM2** - Production process management with monitoring
 - **GitHub Actions** - CI/CD pipeline ready
 - **Docker** - Containerization support
+- **Self-hosted** - Deploy on any VPS or dedicated server
 
 ## 📋 Project Structure
 
@@ -77,15 +79,33 @@ euem_main/
 │   ├── ThemeToggle.tsx          # Dark/light theme switcher
 │   ├── ToggleButton.tsx         # Scroll to top button
 │   └── TopNav.tsx               # Responsive navigation bar
+├── app/                         # Next.js App Router
+│   ├── api/                     # API routes
+│   │   └── health/              # Health check endpoint
+│   ├── globals.css              # Global styles and CSS variables
+│   ├── layout.tsx               # Root layout with metadata
+│   └── page.tsx                 # Main page component
+├── components/                  # React components
+│   ├── AccountPage.tsx          # User account management
+│   ├── AuthDialog.tsx           # Authentication modal
+│   ├── HomePage.tsx             # Landing page with hero section
+│   ├── ProjectDetailPage.tsx    # Individual project showcase
+│   ├── ProjectsPage.tsx         # Projects grid with filtering
+│   ├── ThemeToggle.tsx          # Dark/light theme switcher
+│   ├── ToggleButton.tsx         # Scroll to top button
+│   └── TopNav.tsx               # Responsive navigation bar
 ├── data/                        # Static data
 │   └── projects.json            # Project portfolio data
 ├── design-tokens/               # Design system
 │   └── colors.ts                # Brand color definitions
+├── logs/                        # PM2 log files (created at runtime)
 ├── public/                      # Static assets
 │   ├── EUEM_LIGHT.png          # Light mode logo
 │   ├── EUEM_DARK.png           # Dark mode logo
 │   ├── favicon.ico             # Browser favicon
 │   └── projects/               # Project screenshots
+├── ecosystem.config.js          # PM2 process configuration
+├── .env.example                 # Environment variables template
 └── styles/                     # Additional stylesheets
 ```
 
@@ -95,6 +115,9 @@ euem_main/
 - **Node.js** 18.0.0 or higher
 - **npm** 8.0.0 or higher
 - **Git** for version control
+
+**For Production Deployment:**
+- **PM2** (install globally: `npm install -g pm2`)
 
 ### **Installation**
 
@@ -133,8 +156,100 @@ npm run type-check   # TypeScript type checking
 npm run format       # Format code with Prettier
 npm run format:check # Check code formatting
 
+# Production (PM2)
+npm run pm2:start    # Start with PM2 process manager
+npm run pm2:stop     # Stop PM2 process
+npm run pm2:restart  # Restart PM2 process
+npm run pm2:delete   # Delete PM2 process
+npm run prod:build   # Clean build for production
+
 # Maintenance
 npm run clean        # Remove build artifacts
+```
+
+## 🚀 Production Deployment
+
+### **PM2 Process Management**
+
+The project includes PM2 configuration for production deployment with process management, monitoring, and automatic restarts.
+
+#### **Prerequisites**
+
+1. **Install PM2 globally**
+   ```bash
+   npm install -g pm2
+   ```
+
+2. **Create environment file** (optional)
+   ```bash
+   # Copy the example environment file
+   cp .env.example .env
+
+   # Or create manually with your configuration
+   echo "NODE_ENV=production" > .env
+   echo "PORT=3000" >> .env
+   echo "NEXT_PUBLIC_APP_URL=https://yourdomain.com" >> .env
+   ```
+
+#### **Deploy with PM2**
+
+1. **Build for production**
+   ```bash
+   npm run prod:build
+   ```
+
+2. **Start with PM2**
+   ```bash
+   npm run pm2:start
+   ```
+
+3. **PM2 Management Commands**
+   ```bash
+   # Check status
+   pm2 status
+
+   # View logs
+   pm2 logs euem-portfolio
+
+   # Monitor dashboard
+   pm2 monit
+
+   # Stop process
+   npm run pm2:stop
+
+   # Restart process
+   npm run pm2:restart
+
+   # Delete process
+   npm run pm2:delete
+   ```
+
+#### **PM2 Configuration Features**
+
+- **Automatic Restarts** - Restarts on crashes or memory limits
+- **Health Monitoring** - HTTP health checks every 30 seconds
+- **Log Management** - Separate error, output, and combined logs
+- **Environment Variables** - Loads from `.env` file automatically
+- **Memory Limits** - Restarts if memory usage exceeds 1GB
+- **Process Persistence** - Survives server reboots
+
+#### **Health Check Endpoint**
+
+The application includes a health check endpoint for monitoring:
+
+```bash
+# GET request - Basic health check
+GET /api/health
+
+# Response
+{
+  "status": "ok",
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "uptime": 3600,
+  "nodeVersion": "v18.17.0",
+  "environment": "production",
+  "port": 3000
+}
 ```
 
 ## 🎯 Key Features Deep Dive
