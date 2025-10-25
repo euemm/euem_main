@@ -2,7 +2,6 @@
 const nextConfig = {
 	// App directory is stable in Next.js 14+
 	output: 'standalone',
-	basePath: '/main',
 	images: {
 		unoptimized: true,
 		domains: [],
