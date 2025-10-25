@@ -105,7 +105,7 @@ euem_main/
 │   ├── favicon.ico             # Browser favicon
 │   └── projects/               # Project screenshots
 ├── ecosystem.config.js          # PM2 process configuration
-├── .env.example                 # Environment variables template
+├── server.js                    # Custom Next.js server for PM2
 └── styles/                     # Additional stylesheets
 ```
 
@@ -182,13 +182,20 @@ The project includes PM2 configuration for production deployment with process ma
 
 2. **Create environment file** (optional)
    ```bash
-   # Copy the example environment file
-   cp .env.example .env
-
-   # Or create manually with your configuration
+   # Create .env file with your configuration
    echo "NODE_ENV=production" > .env
    echo "PORT=3000" >> .env
    echo "NEXT_PUBLIC_APP_URL=https://yourdomain.com" >> .env
+   ```
+
+   **Example .env file:**
+   ```bash
+   # Environment Configuration
+   NODE_ENV=production
+   PORT=3000
+
+   # Optional: Application URL (for production)
+   NEXT_PUBLIC_APP_URL=https://yourdomain.com
    ```
 
 #### **Deploy with PM2**
@@ -200,7 +207,11 @@ The project includes PM2 configuration for production deployment with process ma
 
 2. **Start with PM2**
    ```bash
+   # Option 1: Using npm script
    npm run pm2:start
+   
+   # Option 2: Direct PM2 command (recommended)
+   pm2 start ecosystem.config.js
    ```
 
 3. **PM2 Management Commands**
@@ -250,7 +261,38 @@ GET /api/health
   "environment": "production",
   "port": 3000
 }
+
+# POST request - Detailed health check with memory usage
+POST /api/health
+Content-Type: application/json
+
+{
+  "customCheck": "optional"
+}
+
+# Response includes memory usage
+{
+  "status": "ok",
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "uptime": 3600,
+  "nodeVersion": "v18.17.0",
+  "environment": "production",
+  "port": 3000,
+  "memory": {
+    "used": 45.67,
+    "total": 512.89,
+    "external": 12.34
+  },
+  "custom": "optional"
+}
 ```
+
+**Why You Need It:**
+- **PM2 Monitoring** - PM2 checks this endpoint every 30 seconds
+- **Load Balancer Health Checks** - nginx, AWS ALB, etc. can monitor app health
+- **Uptime Monitoring** - Services like UptimeRobot can ping this endpoint
+- **Debugging** - Quick way to check if your app is running and responsive
+- **Memory Monitoring** - Track memory usage in production
 
 ## 🎯 Key Features Deep Dive
 

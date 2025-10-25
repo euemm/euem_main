@@ -14,11 +14,6 @@ module.exports = {
 		error_file: './logs/err.log',
 		out_file: './logs/out.log',
 		log_file: './logs/combined.log',
-		time: true,
-		// Health check endpoint
-		health_check: {
-			url: 'http://localhost:' + (process.env.PORT || 3000) + '/api/health',
-			interval: 30000
-		}
+		time: true
 	}]
 }
