@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { TopNav } from '../components/TopNav'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { ScrollToTopButton } from '../components/ToggleButton'
@@ -11,6 +12,7 @@ import { AccountPage } from '../components/AccountPage'
 import { AuthDialog } from '../components/AuthDialog'
 
 export default function Home() {
+	const router = useRouter()
 	const [currentPage, setCurrentPage] = useState<'home' | 'projects' | 'account' | 'project-detail' | 'skill-detail'>('home')
 	const [user, setUser] = useState(null)
 	const [theme, setTheme] = useState<'light' | 'dark'>('light')
@@ -57,6 +59,10 @@ export default function Home() {
 	const handleProjectClick = (project: any) => {
 		setSelectedProject(project)
 		setCurrentPage('project-detail')
+	}
+
+	const handleViewProjects = () => {
+		router.push('/projects')
 	}
 
 	const handleBackFromProjectDetail = () => {
@@ -110,7 +116,7 @@ export default function Home() {
 			<main className="min-h-screen bg-background pt-20">
 				{currentPage === 'home' && (
 					<HomePage 
-						onViewProjects={() => setCurrentPage('projects')}
+						onViewProjects={handleViewProjects}
 						onProjectClick={handleProjectClick}
 					/>
 				)}
