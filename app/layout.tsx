@@ -8,15 +8,15 @@ export const metadata: Metadata = {
 	title: 'EUEM',
 	icons: {
 		icon: [
-			{ url: '/img/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
-			{ url: '/img/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+			{ url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+			{ url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
 		],
 		apple: [
-			{ url: '/img/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+			{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
 		],
-		shortcut: '/img/favicon.ico',
+		shortcut: '/favicon.ico',
 	},
-	manifest: '/img/site.webmanifest'
+	manifest: '/site.webmanifest'
 }
 
 export default function RootLayout({
