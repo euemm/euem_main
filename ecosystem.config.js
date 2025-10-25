@@ -1,8 +1,11 @@
+require('dotenv').config();
+
 module.exports = {
 	apps: [{
 		name: 'euem-portfolio',
 		script: 'npm',
 		args: 'start',
+		cwd: '/home/deploy/euem_main',
 		instances: 1,
 		autorestart: true,
 		watch: false,
