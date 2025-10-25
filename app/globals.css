@@ -1,0 +1,256 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	:root {
+		--background: 214 100% 99%; /* euem-blue-50 */
+		--foreground: 222.2 84% 4.9%;
+		--card: 0 0% 100%;
+		--card-foreground: 222.2 84% 4.9%;
+		--popover: 0 0% 100%;
+		--popover-foreground: 222.2 84% 4.9%;
+		--primary: 221.2 83.2% 53.3%;
+		--primary-foreground: 210 40% 98%;
+		--secondary: 210 40% 96%;
+		--secondary-foreground: 222.2 84% 4.9%;
+		--muted: 210 40% 96%;
+		--muted-foreground: 215.4 16.3% 46.9%;
+		--accent: 210 40% 96%;
+		--accent-foreground: 222.2 84% 4.9%;
+		--destructive: 0 84.2% 60.2%;
+		--destructive-foreground: 210 40% 98%;
+		--border: 214.3 31.8% 91.4%;
+		--input: 214.3 31.8% 91.4%;
+		--ring: 221.2 83.2% 53.3%;
+		--radius: 0.5rem;
+	}
+
+	.dark {
+		--background: 214 100% 15%; /* euem-blue-900 */
+		--foreground: 210 40% 98%;
+		--card: 222.2 84% 4.9%;
+		--card-foreground: 210 40% 98%;
+		--popover: 222.2 84% 4.9%;
+		--popover-foreground: 210 40% 98%;
+		--primary: 217.2 91.2% 59.8%;
+		--primary-foreground: 222.2 84% 4.9%;
+		--secondary: 217.2 32.6% 17.5%;
+		--secondary-foreground: 210 40% 98%;
+		--muted: 217.2 32.6% 17.5%;
+		--muted-foreground: 215 20.2% 65.1%;
+		--accent: 217.2 32.6% 17.5%;
+		--accent-foreground: 210 40% 98%;
+		--destructive: 0 62.8% 30.6%;
+		--destructive-foreground: 210 40% 98%;
+		--border: 217.2 32.6% 17.5%;
+		--input: 217.2 32.6% 17.5%;
+		--ring: 224.3 76.3% 94.1%;
+	}
+}
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
+	html {
+		@apply bg-background;
+	}
+}
+
+/* iOS-style button effects */
+.ios-button {
+	@apply active:scale-95 transition-transform duration-75;
+}
+
+/* Safe area support for mobile devices */
+.safe-area-top {
+	padding-top: env(safe-area-inset-top);
+}
+
+/* Responsive utilities */
+@layer utilities {
+	/* Mobile-first responsive text */
+	.text-responsive-xs {
+		@apply text-xs sm:text-sm;
+	}
+	
+	.text-responsive-sm {
+		@apply text-sm sm:text-base;
+	}
+	
+	.text-responsive-base {
+		@apply text-base sm:text-lg;
+	}
+	
+	.text-responsive-lg {
+		@apply text-lg sm:text-xl;
+	}
+	
+	.text-responsive-xl {
+		@apply text-xl sm:text-2xl;
+	}
+	
+	.text-responsive-2xl {
+		@apply text-2xl sm:text-3xl;
+	}
+	
+	.text-responsive-3xl {
+		@apply text-3xl sm:text-4xl;
+	}
+	
+	.text-responsive-4xl {
+		@apply text-4xl sm:text-5xl lg:text-6xl;
+	}
+	
+	/* Mobile-first responsive spacing */
+	.space-responsive-sm {
+		@apply space-y-2 sm:space-y-3;
+	}
+	
+	.space-responsive-base {
+		@apply space-y-3 sm:space-y-4;
+	}
+	
+	.space-responsive-lg {
+		@apply space-y-4 sm:space-y-6;
+	}
+	
+	.space-responsive-xl {
+		@apply space-y-6 sm:space-y-8;
+	}
+	
+	/* Mobile-first responsive padding */
+	.p-responsive-sm {
+		@apply p-2 sm:p-3;
+	}
+	
+	.p-responsive-base {
+		@apply p-3 sm:p-4;
+	}
+	
+	.p-responsive-lg {
+		@apply p-4 sm:p-6;
+	}
+	
+	.p-responsive-xl {
+		@apply p-6 sm:p-8;
+	}
+	
+	/* Mobile-first responsive margins */
+	.m-responsive-sm {
+		@apply m-2 sm:m-3;
+	}
+	
+	.m-responsive-base {
+		@apply m-3 sm:m-4;
+	}
+	
+	.m-responsive-lg {
+		@apply m-4 sm:m-6;
+	}
+	
+	.m-responsive-xl {
+		@apply m-6 sm:m-8;
+	}
+	
+	/* Mobile-first responsive gaps */
+	.gap-responsive-sm {
+		@apply gap-1 sm:gap-2;
+	}
+	
+	.gap-responsive-base {
+		@apply gap-2 sm:gap-3;
+	}
+	
+	.gap-responsive-lg {
+		@apply gap-3 sm:gap-4;
+	}
+	
+	.gap-responsive-xl {
+		@apply gap-4 sm:gap-6;
+	}
+	
+	/* Mobile-first responsive grid */
+	.grid-responsive-1 {
+		@apply grid-cols-1 sm:grid-cols-2;
+	}
+	
+	.grid-responsive-2 {
+		@apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+	}
+	
+	.grid-responsive-3 {
+		@apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+	}
+	
+	/* Mobile-first responsive flex */
+	.flex-responsive-col {
+		@apply flex-col sm:flex-row;
+	}
+	
+	.flex-responsive-row {
+		@apply flex-row sm:flex-col lg:flex-row;
+	}
+	
+	/* Mobile-first responsive visibility */
+	.hidden-mobile {
+		@apply hidden sm:block;
+	}
+	
+	.hidden-desktop {
+		@apply block sm:hidden;
+	}
+	
+	/* Mobile-first responsive sizing */
+	.w-responsive-sm {
+		@apply w-4 h-4 sm:w-5 sm:h-5;
+	}
+	
+	.w-responsive-base {
+		@apply w-5 h-5 sm:w-6 sm:h-6;
+	}
+	
+	.w-responsive-lg {
+		@apply w-6 h-6 sm:w-8 sm:h-8;
+	}
+	
+	/* Mobile-first responsive borders */
+	.rounded-responsive {
+		@apply rounded-lg sm:rounded-xl;
+	}
+	
+	.rounded-responsive-lg {
+		@apply rounded-xl sm:rounded-2xl;
+	}
+	
+	/* Mobile-first responsive shadows */
+	.shadow-responsive {
+		@apply shadow-sm sm:shadow-md;
+	}
+	
+	.shadow-responsive-lg {
+		@apply shadow-md sm:shadow-lg;
+	}
+	
+	/* Mobile-first responsive containers */
+	.container-responsive {
+		@apply container mx-auto px-4 sm:px-6 lg:px-8;
+	}
+	
+	/* Mobile-first responsive sections */
+	.section-responsive {
+		@apply py-8 sm:py-12 lg:py-16;
+	}
+	
+	.section-responsive-sm {
+		@apply py-6 sm:py-8 lg:py-12;
+	}
+	
+	.section-responsive-lg {
+		@apply py-12 sm:py-16 lg:py-20;
+	}
+}
