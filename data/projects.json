@@ -34,7 +34,7 @@
       "liveUrl": false,
       "githubUrl": "https://github.com/euemm/EUEM_WEB_RTC_SERVER",
       "date": "2025-10-10",
-      "featured": true
+      "featured": false
     },
     {
       "id": "4",
@@ -71,6 +71,18 @@
       "githubUrl": "https://github.com/euemm/OAFRWP",
       "date": "2025-10-20",
       "featured": false
+    },
+    {
+      "id": "7",
+      "title": "EUEM Main Server",
+      "description": "A java backend server with repository integration and smtp integration for EUEM portfolio website and its subsidiary projects.",
+      "image": "/SpringFramework.png",
+      "category": "Backend",
+      "technologies": ["Java", "Spring Framework", "Spring Boot", "Spring Security", "Spring DATA JPA", "PostgreSQL", "Gradle", "JWT", "BCrypt", "SMTP", "JavaMailSender", "Lombok", "Hibernate"],
+      "liveUrl": false,
+      "githubUrl": "https://github.com/euemm/euem_main_server",
+      "date": "2025-10-26",
+      "featured": true
     }
   ]
 }
