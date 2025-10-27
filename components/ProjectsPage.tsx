@@ -76,14 +76,15 @@ export function ProjectsPage({ onProjectClick }: ProjectsPageProps) {
 		}, observerOptions)
 
 		// Observe all project cards
-		projectRefs.current.forEach((ref) => {
+		const currentRefs = projectRefs.current
+		currentRefs.forEach((ref) => {
 			if (ref) {
 				observer.observe(ref)
 			}
 		})
 
 		return () => {
-			projectRefs.current.forEach((ref) => {
+			currentRefs.forEach((ref) => {
 				if (ref) {
 					observer.unobserve(ref)
 				}
