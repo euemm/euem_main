@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { ExternalLink, Github, Calendar, Tag } from 'lucide-react'
 import projectsData from '../data/projects.json'
@@ -27,6 +27,10 @@ type ProjectsPageProps = {
 export function ProjectsPage({ onProjectClick }: ProjectsPageProps) {
 	const [selectedCategory, setSelectedCategory] = useState<string>('all')
 	const [searchQuery, setSearchQuery] = useState('')
+	const [visibleProjects, setVisibleProjects] = useState<Set<string>>(new Set())
+
+	// Refs for project cards
+	const projectRefs = useRef<Map<string, HTMLDivElement>>(new Map())
 
 	// Calculate categories dynamically from projects
 	const categories = [
@@ -48,11 +52,50 @@ export function ProjectsPage({ onProjectClick }: ProjectsPageProps) {
 		return matchesCategory && matchesSearch
 	})
 
+	// Intersection Observer for scroll animations
+	useEffect(() => {
+		const observerOptions = {
+			threshold: 0,
+			rootMargin: '0px'
+		}
+
+					const observer = new IntersectionObserver((entries) => {
+			entries.forEach((entry) => {
+				if (entry.isIntersecting && entry.target.id) {
+					// Immediately set visible without state batching
+					setVisibleProjects((prev) => {
+						if (prev.has(entry.target.id)) {
+							return prev
+						}
+						const newSet = new Set(prev)
+						newSet.add(entry.target.id)
+						return newSet
+					})
+				}
+			})
+		}, observerOptions)
+
+		// Observe all project cards
+		projectRefs.current.forEach((ref) => {
+			if (ref) {
+				observer.observe(ref)
+			}
+		})
+
+		return () => {
+			projectRefs.current.forEach((ref) => {
+				if (ref) {
+					observer.unobserve(ref)
+				}
+			})
+		}
+	}, [filteredProjects])
+
 	return (
 		<div className="min-h-screen bg-background pt-16 sm:pt-20 pb-16 sm:pb-20">
 			<div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 				{/* Header */}
-				<div className="text-center mb-8 sm:mb-12">
+				<div className="text-center mb-8 sm:mb-12 animate-fade-in-up">
 					<h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3 sm:mb-4">
 						My Projects
 					</h1>
@@ -101,10 +144,25 @@ export function ProjectsPage({ onProjectClick }: ProjectsPageProps) {
 
 				{/* Projects Grid */}
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-					{filteredProjects.map((project) => (
+					{filteredProjects.map((project, index) => {
+						const ref = (el: HTMLDivElement | null) => {
+							if (el) {
+								projectRefs.current.set(project.id, el)
+							} else {
+								projectRefs.current.delete(project.id)
+							}
+						}
+						
+						return (
 						<div
 							key={project.id}
-							className="bg-card border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group cursor-pointer"
+							ref={ref}
+							id={`project-${project.id}`}
+							className={`bg-card border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-500 group cursor-pointer ${
+								visibleProjects.has(`project-${project.id}`) 
+									? 'opacity-100 translate-y-0' 
+									: 'opacity-0 translate-y-4'
+							}`}
 							onClick={() => onProjectClick?.(project)}
 						>
 							{/* Project Image */}
@@ -183,7 +241,8 @@ export function ProjectsPage({ onProjectClick }: ProjectsPageProps) {
 								</div>
 							</div>
 						</div>
-					))}
+						)
+					})}
 				</div>
 
 				{/* Empty State */}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { ArrowRight, Download, Github, Linkedin, Mail, MapPin, Calendar, Code, Palette, Smartphone, Monitor, ExternalLink } from 'lucide-react'
 import projectsData from '../data/projects.json'
@@ -45,6 +45,14 @@ type HomePageProps = {
 
 export function HomePage({ onProjectClick, onViewProjects }: HomePageProps) {
 	const [activeSkillCategory, setActiveSkillCategory] = useState<string>('all')
+	const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set())
+	
+	// Refs for each section
+	const heroRef = useRef<HTMLElement>(null)
+	const aboutRef = useRef<HTMLElement>(null)
+	const skillsRef = useRef<HTMLElement>(null)
+	const projectsRef = useRef<HTMLElement>(null)
+	const ctaRef = useRef<HTMLElement>(null)
 
 	const skillCategories = [
 		{ id: 'all', label: 'All Skills' },
@@ -59,10 +67,53 @@ export function HomePage({ onProjectClick, onViewProjects }: HomePageProps) {
 		? skills 
 		: skills.filter(skill => skill.category === activeSkillCategory)
 
+	// Intersection Observer for scroll animations
+	useEffect(() => {
+		// Immediately mark hero as visible
+		setVisibleSections(new Set(['hero']))
+
+		const observerOptions = {
+			threshold: 0,
+			rootMargin: '0px'
+		}
+
+		const observer = new IntersectionObserver((entries) => {
+			entries.forEach((entry) => {
+				if (entry.isIntersecting && entry.target.id) {
+					console.log('Section visible:', entry.target.id)
+					setVisibleSections((prev) => {
+						const newSet = new Set(prev)
+						newSet.add(entry.target.id)
+						return newSet
+					})
+				}
+			})
+		}, observerOptions)
+
+		// Observe all sections except hero
+		const sections = [aboutRef, skillsRef, projectsRef, ctaRef]
+		
+		// Set up observer immediately
+		sections.forEach((ref) => {
+			if (ref.current) {
+				console.log('Observing section:', ref.current.id)
+				observer.observe(ref.current)
+			}
+		})
+
+		return () => {
+			sections.forEach((ref) => {
+				if (ref.current) {
+					observer.unobserve(ref.current)
+				}
+			})
+		}
+	}, [])
+
 	return (
 		<div className="min-h-screen bg-background pt-16 sm:pt-20 pb-16 sm:pb-20">
 			{/* Hero Section */}
-			<section className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+			<section ref={heroRef} id="hero" className={`container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 ${visibleSections.has('hero') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-700`}>
 				<div className="max-w-6xl mx-auto">
 					<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center">
 						<div className="space-y-6 sm:space-y-8 order-2 lg:order-1">
@@ -159,7 +210,7 @@ export function HomePage({ onProjectClick, onViewProjects }: HomePageProps) {
 			</section>
 
 			{/* About Section */}
-			<section className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+			<section ref={aboutRef} id="about" className={`container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 transition-all duration-700 ${visibleSections.has('about') ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'}`}>
 				<div className="max-w-4xl mx-auto text-center">
 					<h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4 sm:mb-6">About Me</h2>
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
@@ -187,7 +238,7 @@ export function HomePage({ onProjectClick, onViewProjects }: HomePageProps) {
 			</section>
 
 			{/* Skills Section */}
-			<section className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+			<section ref={skillsRef} id="skills" className={`container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 transition-all duration-700 ${visibleSections.has('skills') ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'}`}>
 				<div className="max-w-6xl mx-auto">
 					<h2 className="text-2xl sm:text-3xl font-bold text-foreground text-center mb-8 sm:mb-12">Skills & Technologies</h2>
 					
@@ -233,7 +284,7 @@ export function HomePage({ onProjectClick, onViewProjects }: HomePageProps) {
 			</section>
 
 			{/* Featured Projects Section */}
-			<section className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+			<section ref={projectsRef} id="projects" className={`container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 transition-all duration-700 ${visibleSections.has('projects') ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'}`}>
 				<div className="max-w-6xl mx-auto">
 					<div className="text-center mb-8 sm:mb-12">
 						<h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 sm:mb-4">Featured Projects</h2>
@@ -317,7 +368,7 @@ export function HomePage({ onProjectClick, onViewProjects }: HomePageProps) {
 			</section>
 
 			{/* CTA Section */}
-			<section className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+			<section ref={ctaRef} id="cta" className={`container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 transition-all duration-700 ${visibleSections.has('cta') ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'}`}>
 				<div className="max-w-4xl mx-auto text-center bg-card border border-border rounded-2xl p-6 sm:p-8 lg:p-12">
 					<h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 sm:mb-4">
 						Let&apos;s Work Together

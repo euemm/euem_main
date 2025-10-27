@@ -103,6 +103,11 @@ export default function Home() {
 		localStorage.setItem('theme', theme)
 	}, [theme])
 
+	// Scroll to top when page changes
+	useEffect(() => {
+		window.scrollTo({ top: 0, behavior: 'auto' })
+	}, [currentPage])
+
 	return (
 		<>
 			<TopNav

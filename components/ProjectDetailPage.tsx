@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ArrowLeft, ExternalLink, Github, Calendar, Tag } from 'lucide-react'
 import Image from 'next/image'
 import ReactMarkdown from 'react-markdown'
@@ -25,6 +25,9 @@ type ProjectDetailPageProps = {
 export function ProjectDetailPage({ project, onBack }: ProjectDetailPageProps) {
 	const [markdownContent, setMarkdownContent] = useState<string>('')
 	const [isLoading, setIsLoading] = useState(true)
+	const [isHeaderVisible, setIsHeaderVisible] = useState(false)
+	const [isContentVisible, setIsContentVisible] = useState(false)
+	const contentRef = useRef<HTMLDivElement>(null)
 
 	useEffect(() => {
 		// Load markdown content from GitHub README or local file
@@ -108,12 +111,31 @@ ${project.liveUrl && typeof project.liveUrl === 'string' ? `- [Live Demo](${proj
 		loadMarkdown()
 	}, [project])
 
+	// Show header immediately on mount
+	useEffect(() => {
+		setIsHeaderVisible(true)
+	}, [])
+
+	// Wait for markdown content to be fully rendered before showing
+	useEffect(() => {
+		if (!isLoading && markdownContent) {
+			// Use a slight delay to ensure contentRef is attached and DOM is updated
+			const timer = setTimeout(() => {
+				if (contentRef.current) {
+					setIsContentVisible(true)
+				}
+			}, 50)
+			
+			return () => clearTimeout(timer)
+		}
+	}, [isLoading, markdownContent])
+
 	return (
 		<div className="min-h-screen bg-background pt-8 sm:pt-12 pb-16 sm:pb-20">
 			<div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
 				{/* Project Header */}
-				<div className="max-w-4xl mx-auto mb-8">
+				<div className={`max-w-4xl mx-auto mb-8 transition-all duration-700 ${isHeaderVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'}`}>
 					<div className="bg-card border border-border rounded-xl overflow-hidden">
 						{/* Project Image */}
 						<div className="relative h-64 sm:h-80 bg-gradient-to-br from-euem-blue-100 to-euem-purple-100 dark:from-euem-blue-300 dark:to-euem-purple-300">
@@ -188,12 +210,8 @@ ${project.liveUrl && typeof project.liveUrl === 'string' ? `- [Live Demo](${proj
 
 				{/* Markdown Content */}
 				<div className="max-w-4xl mx-auto">
-					<div className="bg-card border border-border rounded-xl p-6 sm:p-8">
-						{isLoading ? (
-							<div className="flex items-center justify-center py-12">
-								<div className="w-8 h-8 border-2 border-euem-blue-600 border-t-transparent rounded-full animate-spin"></div>
-							</div>
-						) : (
+					{!isLoading && (
+						<div ref={contentRef} className={`bg-card border border-border rounded-xl p-6 sm:p-8 transition-all duration-700 ${isContentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
 							<div className="prose prose-slate dark:prose-invert max-w-none">
 								<ReactMarkdown
 									components={{
@@ -229,8 +247,8 @@ ${project.liveUrl && typeof project.liveUrl === 'string' ? `- [Live Demo](${proj
 									{markdownContent}
 								</ReactMarkdown>
 							</div>
-						)}
-					</div>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>
