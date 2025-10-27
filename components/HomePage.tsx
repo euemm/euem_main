@@ -46,6 +46,7 @@ type HomePageProps = {
 export function HomePage({ onProjectClick, onViewProjects }: HomePageProps) {
 	const [activeSkillCategory, setActiveSkillCategory] = useState<string>('all')
 	const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set())
+	const [isMounted, setIsMounted] = useState(false)
 	
 	// Refs for each section
 	const heroRef = useRef<HTMLElement>(null)
@@ -67,10 +68,21 @@ export function HomePage({ onProjectClick, onViewProjects }: HomePageProps) {
 		? skills 
 		: skills.filter(skill => skill.category === activeSkillCategory)
 
+	// Mark as mounted and trigger hero animation
+	useEffect(() => {
+		setIsMounted(true)
+		setTimeout(() => {
+			setVisibleSections((prev) => {
+				const newSet = new Set(prev)
+				newSet.add('hero')
+				return newSet
+			})
+		}, 50)
+	}, [])
+
 	// Intersection Observer for scroll animations
 	useEffect(() => {
-		// Immediately mark hero as visible
-		setVisibleSections(new Set(['hero']))
+		if (!isMounted) return
 
 		const observerOptions = {
 			threshold: 0,
@@ -108,12 +120,12 @@ export function HomePage({ onProjectClick, onViewProjects }: HomePageProps) {
 				}
 			})
 		}
-	}, [])
+	}, [isMounted])
 
 	return (
 		<div className="min-h-screen bg-background pt-16 sm:pt-20 pb-16 sm:pb-20">
 			{/* Hero Section */}
-			<section ref={heroRef} id="hero" className={`container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 ${visibleSections.has('hero') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-700`}>
+			<section ref={heroRef} id="hero" className={`container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 transition-all duration-700 ${visibleSections.has('hero') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
 				<div className="max-w-6xl mx-auto">
 					<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center">
 						<div className="space-y-6 sm:space-y-8 order-2 lg:order-1">
@@ -193,14 +205,8 @@ export function HomePage({ onProjectClick, onViewProjects }: HomePageProps) {
 										alt="EUEM Logo"
 										fill
 										sizes="(max-width: 640px) 256px, (max-width: 768px) 288px, 320px"
-										className="object-contain dark:hidden"
-									/>
-									<Image
-										src="/EUEM_DARK.png"
-										alt="EUEM Logo"
-										fill
-										sizes="(max-width: 640px) 256px, (max-width: 768px) 288px, 320px"
-										className="object-contain hidden dark:block"
+										className="object-contain"
+										style={{ display: 'block' }}
 									/>
 								</div>
 							</div>

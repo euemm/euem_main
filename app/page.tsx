@@ -84,17 +84,20 @@ export default function Home() {
 
 	// Initialize theme on mount
 	useEffect(() => {
-		// Check for saved theme preference or default to light
-		const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null
-		const initialTheme = savedTheme || 'light'
-		setTheme(initialTheme)
-		// Apply initial theme to both html and body
-		if (initialTheme === 'dark') {
-			document.documentElement.classList.add('dark')
-			document.body.classList.add('dark')
-		} else {
-			document.documentElement.classList.remove('dark')
-			document.body.classList.remove('dark')
+		// Only access localStorage on client-side
+		if (typeof window !== 'undefined') {
+			// Check for saved theme preference or default to light
+			const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null
+			const initialTheme = savedTheme || 'light'
+			setTheme(initialTheme)
+			// Apply initial theme to both html and body
+			if (initialTheme === 'dark') {
+				document.documentElement.classList.add('dark')
+				document.body.classList.add('dark')
+			} else {
+				document.documentElement.classList.remove('dark')
+				document.body.classList.remove('dark')
+			}
 		}
 	}, [])
 
@@ -105,7 +108,10 @@ export default function Home() {
 
 	// Scroll to top when page changes
 	useEffect(() => {
-		window.scrollTo({ top: 0, behavior: 'auto' })
+		// Only scroll if component is mounted (client-side only)
+		if (typeof window !== 'undefined') {
+			window.scrollTo({ top: 0, behavior: 'auto' })
+		}
 	}, [currentPage])
 
 	return (

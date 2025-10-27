@@ -15,7 +15,7 @@ export function ThemeToggle({ theme, onThemeChange }: ThemeToggleProps) {
 	return (
 		<button
 			onClick={toggleTheme}
-			className="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-card border border-border shadow-lg hover:shadow-xl transition-all duration-200 ios-button group"
+			className="fixed bottom-6 left-6 z-50 p-3 rounded-full bg-card border border-border shadow-lg hover:shadow-xl transition-all duration-200 ios-button group"
 			aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
 		>
 			<div className="relative w-6 h-6">

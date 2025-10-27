@@ -70,16 +70,19 @@ export function TopNav({
 								</span>
 							</button>
 						) : (
-							<div className="flex items-center gap-1.5 sm:gap-2">
+							<button
+								onClick={() => setCurrentPage('home')}
+								className="flex items-center gap-1.5 sm:gap-2 ios-button hover:opacity-80 transition-opacity"
+							>
 								<Image
-									src={theme === 'light' ? '/EUEM_LIGHT.png' : '/EUEM_DARK.png'}
+									src="/EUEM_LIGHT.png"
 									alt="EUEM Logo"
 									width={32}
 									height={32}
 									className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg object-contain"
 								/>
 								<span className="text-sm sm:text-base text-foreground">Portfolio</span>
-							</div>
+							</button>
 						)}
 
 						{/* Navigation */}

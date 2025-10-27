@@ -15,7 +15,7 @@ export function ScrollToTopButton({ className = '' }: ScrollToTopButtonProps) {
 	}
 
 	return (
-		<div className={`fixed bottom-6 left-6 z-50 ${className}`}>
+		<div className={`fixed bottom-6 right-6 z-50 ${className}`}>
 			<button
 				onClick={scrollToTop}
 				className="p-3 rounded-full bg-card border border-border shadow-lg hover:shadow-xl transition-all duration-200 ios-button group"
