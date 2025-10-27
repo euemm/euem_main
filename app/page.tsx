@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { TopNav } from '../components/TopNav'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { ScrollToTopButton } from '../components/ToggleButton'
@@ -12,12 +11,12 @@ import { AccountPage } from '../components/AccountPage'
 import { AuthDialog } from '../components/AuthDialog'
 
 export default function Home() {
-	const router = useRouter()
 	const [currentPage, setCurrentPage] = useState<'home' | 'projects' | 'account' | 'project-detail' | 'skill-detail'>('home')
 	const [user, setUser] = useState(null)
 	const [theme, setTheme] = useState<'light' | 'dark'>('light')
 	const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false)
 	const [selectedProject, setSelectedProject] = useState<any>(null)
+	const [isNavigatingFromHistory, setIsNavigatingFromHistory] = useState(false)
 
 	const handleAuthClick = () => {
 		if (user) {
@@ -62,7 +61,7 @@ export default function Home() {
 	}
 
 	const handleViewProjects = () => {
-		router.push('/projects')
+		setCurrentPage('projects')
 	}
 
 	const handleBackFromProjectDetail = () => {
@@ -108,11 +107,135 @@ export default function Home() {
 
 	// Scroll to top when page changes
 	useEffect(() => {
+		console.log('Current page changed to:', currentPage)
 		// Only scroll if component is mounted (client-side only)
 		if (typeof window !== 'undefined') {
 			window.scrollTo({ top: 0, behavior: 'auto' })
 		}
 	}, [currentPage])
+
+	// Debug component mount
+	useEffect(() => {
+		console.log('Main component mounted')
+		return () => {
+			console.log('Main component unmounted')
+		}
+	}, [])
+
+	// Initialize history management on mount
+	useEffect(() => {
+		if (typeof window === 'undefined') return
+
+		// Prevent automatic scroll restoration by browser
+		if (window.history.scrollRestoration) {
+			window.history.scrollRestoration = 'manual'
+		}
+
+		// Store Next.js's initial state to preserve it
+		const nextJsState = window.history.state || {}
+		
+		// Create a barrier entry to prevent going back past the app
+		const barrierState = { 
+			...nextJsState, // Preserve Next.js state
+			page: 'home', 
+			project: null,
+			isAppEntry: true,
+			isBarrier: true
+		}
+		
+		// Replace the current entry with our barrier
+		window.history.replaceState(barrierState, '', window.location.pathname)
+		
+		// Push the initial state on top of the barrier
+		// This creates: [barrier] -> [current state]
+		const initialState = { 
+			...nextJsState, // Preserve Next.js state
+			page: currentPage, 
+			project: selectedProject,
+			isAppEntry: true,
+			isInitial: true
+		}
+		window.history.pushState(initialState, '', window.location.pathname)
+
+		// Handle browser back/forward buttons
+		// Use capture phase to handle event before Next.js
+		const handlePopState = (event: PopStateEvent) => {
+			const state = event.state
+			console.log('popstate event:', state)
+			
+			if (state && state.isAppEntry) {
+				// Prevent Next.js from handling this event
+				event.stopImmediatePropagation?.()
+				
+				// Check if we hit the barrier
+				if (state.isBarrier) {
+					// User is trying to go back past our initial entry
+					// Push forward to keep them in the app at home
+					console.log('Hit barrier - staying in app at home')
+					const homeState = { 
+						...state, // Preserve all existing state including Next.js internals
+						page: 'home', 
+						project: null,
+						isAppEntry: true,
+						isBarrier: false // Remove barrier flag for new entry
+					}
+					window.history.pushState(homeState, '', window.location.pathname)
+					setIsNavigatingFromHistory(true)
+					setCurrentPage('home')
+					setSelectedProject(null)
+				} else {
+					// Normal navigation within the app - restore the state
+					console.log('Normal navigation - going to:', state.page)
+					setIsNavigatingFromHistory(true)
+					setCurrentPage(state.page || 'home')
+					setSelectedProject(state.project || null)
+				}
+			} else {
+				// State is null or not from our app (shouldn't happen but just in case)
+				console.log('No state found - going to home')
+				const homeState = { 
+					...nextJsState,
+					page: 'home', 
+					project: null,
+					isAppEntry: true
+				}
+				window.history.pushState(homeState, '', window.location.pathname)
+				setIsNavigatingFromHistory(true)
+				setCurrentPage('home')
+				setSelectedProject(null)
+			}
+		}
+
+		// Use capture phase to intercept before Next.js
+		window.addEventListener('popstate', handlePopState, true)
+
+		return () => {
+			window.removeEventListener('popstate', handlePopState, true)
+		}
+	}, [])
+
+	// Push state when page changes (only for user-initiated navigation)
+	useEffect(() => {
+		if (typeof window === 'undefined') return
+
+		// Skip if this navigation came from history (back/forward button)
+		if (isNavigatingFromHistory) {
+			setIsNavigatingFromHistory(false)
+			return
+		}
+
+		// Get current state to preserve Next.js internals
+		const currentState = window.history.state || {}
+
+		// Push new state for user-initiated navigation
+		const state = { 
+			...currentState, // Preserve Next.js state
+			page: currentPage, 
+			project: selectedProject,
+			isAppEntry: true 
+		}
+		window.history.pushState(state, '', window.location.pathname)
+	}, [currentPage, selectedProject])
 
 	return (
 		<>

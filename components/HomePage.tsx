@@ -199,14 +199,14 @@ export function HomePage({ onProjectClick, onViewProjects }: HomePageProps) {
 						<div className="relative order-1 lg:order-2 flex justify-end">
 							<div className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80">
 								<div className="absolute inset-0 bg-gradient-to-br from-euem-blue-400 to-euem-purple-600 rounded-full blur-3xl opacity-20"></div>
-								<div className="relative w-full h-full bg-card border border-border rounded-full overflow-hidden">
+								<div className="relative w-full h-full bg-card border border-border rounded-full overflow-hidden p-4">
 									<Image
 										src="/EUEM_LIGHT.png"
 										alt="EUEM Logo"
 										fill
 										sizes="(max-width: 640px) 256px, (max-width: 768px) 288px, 320px"
 										className="object-contain"
-										style={{ display: 'block' }}
+										style={{ display: 'block', transform: 'scale(1.01)' }}
 									/>
 								</div>
 							</div>
