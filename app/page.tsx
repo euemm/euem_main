@@ -107,20 +107,11 @@ export default function Home() {
 
 	// Scroll to top when page changes
 	useEffect(() => {
-		console.log('Current page changed to:', currentPage)
 		// Only scroll if component is mounted (client-side only)
 		if (typeof window !== 'undefined') {
 			window.scrollTo({ top: 0, behavior: 'auto' })
 		}
 	}, [currentPage])
-
-	// Debug component mount
-	useEffect(() => {
-		console.log('Main component mounted')
-		return () => {
-			console.log('Main component unmounted')
-		}
-	}, [])
 
 	// Initialize history management on mount
 	useEffect(() => {
@@ -161,7 +152,6 @@ export default function Home() {
 		// Use capture phase to handle event before Next.js
 		const handlePopState = (event: PopStateEvent) => {
 			const state = event.state
-			console.log('popstate event:', state)
 			
 			if (state && state.isAppEntry) {
 				// Prevent Next.js from handling this event
@@ -171,7 +161,6 @@ export default function Home() {
 				if (state.isBarrier) {
 					// User is trying to go back past our initial entry
 					// Push forward to keep them in the app at home
-					console.log('Hit barrier - staying in app at home')
 					const homeState = { 
 						...state, // Preserve all existing state including Next.js internals
 						page: 'home', 
@@ -185,14 +174,12 @@ export default function Home() {
 					setSelectedProject(null)
 				} else {
 					// Normal navigation within the app - restore the state
-					console.log('Normal navigation - going to:', state.page)
 					setIsNavigatingFromHistory(true)
 					setCurrentPage(state.page || 'home')
 					setSelectedProject(state.project || null)
 				}
 			} else {
 				// State is null or not from our app (shouldn't happen but just in case)
-				console.log('No state found - going to home')
 				const homeState = { 
 					...nextJsState,
 					page: 'home', 
@@ -212,6 +199,7 @@ export default function Home() {
 		return () => {
 			window.removeEventListener('popstate', handlePopState, true)
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
 	// Push state when page changes (only for user-initiated navigation)
@@ -235,6 +223,7 @@ export default function Home() {
 			isAppEntry: true 
 		}
 		window.history.pushState(state, '', window.location.pathname)
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [currentPage, selectedProject])
 
 	return (
