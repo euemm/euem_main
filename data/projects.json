@@ -83,6 +83,19 @@
       "githubUrl": "https://github.com/euemm/euem_main_server",
       "date": "2025-10-26",
       "featured": true
+    },
+    {
+      "id": "8",
+      "title": "EUEM SMTP",
+      "description": "An SMTP server with Postfix, Dovecot, AMS SES with full security and monitoring.",
+      "image": "/SMTP.png",
+      "category": "Backend",
+      "technologies": ["Postfix", "Dovecot", "AMS SES"],
+      "liveUrl": false,
+      "githubUrl": "https://github.com/euemm/euem_smtp",
+      "date": "2025-10-26",
+      "featured": false
     }
+    
   ]
 }
