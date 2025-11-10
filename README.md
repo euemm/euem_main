@@ -165,7 +165,31 @@ npm run prod:build   # Clean build for production
 
 # Maintenance
 npm run clean        # Remove build artifacts
+npm run test         # Run Vitest component tests
+npm run test:watch   # Run Vitest in watch mode
 ```
+
+## 🧪 Testing
+
+We use [Vitest](https://vitest.dev/) with [Testing Library](https://testing-library.com/docs/react-testing-library/intro/) and JSDOM to exercise the interactive UI components in isolation. Run the full suite with:
+
+```bash
+npm run test
+```
+
+### Current Test Coverage
+
+- **AuthDialog** (`__tests__/auth-dialog.test.tsx`)
+  - Exercises sign-in, sign-up, and verification flows.
+  - Mocks backend API calls to ensure UI transitions, success callbacks, and dialog closing behave correctly.
+- **AccountPage** (`__tests__/account-page.test.tsx`)
+  - Confirms guest messaging when no user is present.
+  - Verifies authenticated views render profile data and that account actions (password/email update, account removal, logout) trigger their callbacks.
+- **TopNav** (`__tests__/top-nav.test.tsx`)
+  - Checks navigation buttons enable/disable state based on authentication.
+  - Ensures tab clicks and back navigation invoke the supplied handlers across primary and detail views.
+
+All tests are written from the user’s perspective with Testing Library. Vitest automatically resets DOM state between tests; no additional configuration is required beyond running the script above.
 
 ## 🚀 Production Deployment
 

@@ -9,31 +9,36 @@ import { ProjectsPage } from '../components/ProjectsPage'
 import { ProjectDetailPage } from '../components/ProjectDetailPage'
 import { AccountPage } from '../components/AccountPage'
 import { AuthDialog } from '../components/AuthDialog'
+import type { AuthUser, AuthResponse } from '../lib/auth-api'
+import { getProfile } from '../lib/auth-api'
+import { clearStoredAuthSession, getStoredAuthSession, storeAuthSession, updateStoredUser } from '../lib/auth-storage'
 
 export default function Home() {
 	const [currentPage, setCurrentPage] = useState<'home' | 'projects' | 'account' | 'project-detail' | 'skill-detail'>('home')
-	const [user, setUser] = useState(null)
+	const [user, setUser] = useState<AuthUser | null>(null)
 	const [theme, setTheme] = useState<'light' | 'dark'>('light')
 	const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false)
 	const [selectedProject, setSelectedProject] = useState<any>(null)
 	const [isNavigatingFromHistory, setIsNavigatingFromHistory] = useState(false)
+	const [isRestoringSession, setIsRestoringSession] = useState(false)
 
 	const handleAuthClick = () => {
 		if (user) {
-			// If user is logged in, log them out
-			setUser(null)
+			handleLogout()
 		} else {
 			// If user is not logged in, open auth dialog
 			setIsAuthDialogOpen(true)
 		}
 	}
 
-	const handleAuthSuccess = (userData: any) => {
-		setUser(userData)
+	const handleAuthSuccess = (session: AuthResponse) => {
+		setUser(session.user)
+		storeAuthSession(session)
 		setIsAuthDialogOpen(false)
 	}
 
 	const handleLogout = () => {
+		clearStoredAuthSession()
 		setUser(null)
 		setCurrentPage('home')
 	}
@@ -51,6 +56,7 @@ export default function Home() {
 	const handleAccountDelete = () => {
 		// TODO: Implement account deletion functionality
 		console.log('Delete account clicked')
+		clearStoredAuthSession()
 		setUser(null)
 		setCurrentPage('home')
 	}
@@ -104,6 +110,43 @@ export default function Home() {
 	useEffect(() => {
 		localStorage.setItem('theme', theme)
 	}, [theme])
+
+	// Restore auth session
+	useEffect(() => {
+		if (typeof window === 'undefined') return
+		const stored = getStoredAuthSession()
+		if (!stored) return
+
+		setIsRestoringSession(true)
+		setUser(stored.user)
+
+		let isCancelled = false
+
+		const syncProfile = async () => {
+			try {
+				const profile = await getProfile(stored.accessToken)
+				if (!isCancelled) {
+					setUser(profile)
+					updateStoredUser(profile)
+				}
+			} catch {
+				if (!isCancelled) {
+					clearStoredAuthSession()
+					setUser(null)
+				}
+			} finally {
+				if (!isCancelled) {
+					setIsRestoringSession(false)
+				}
+			}
+		}
+
+		void syncProfile()
+
+		return () => {
+			isCancelled = true
+		}
+	}, [])
 
 	// Scroll to top when page changes
 	useEffect(() => {
@@ -269,6 +312,9 @@ export default function Home() {
 				onClose={() => setIsAuthDialogOpen(false)}
 				onAuthSuccess={handleAuthSuccess}
 			/>
+			{isRestoringSession && (
+				<div className="fixed inset-0 pointer-events-none" aria-hidden="true" />
+			)}
 		</>
 	)
 }

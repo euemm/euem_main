@@ -1,56 +1,66 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { X, Mail, Lock, User, Eye, EyeOff, ArrowLeft, RefreshCw, CheckCircle } from 'lucide-react'
+import { login, registerUser, verifyEmail, resendVerificationCode, type AuthResponse } from '../lib/auth-api'
 
 type AuthMode = 'signin' | 'register' | 'verify'
 
 type AuthDialogProps = {
 	isOpen: boolean
 	onClose: () => void
-	onAuthSuccess: (user: any) => void
+	onAuthSuccess: (session: AuthResponse) => void
+}
+
+type PendingCredentials = {
+	email: string
+	password: string
+	firstName?: string
+	lastName?: string
+}
+
+const initialFormState = {
+	name: '',
+	email: '',
+	password: '',
+	confirmPassword: '',
 }
 
 export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) {
 	const [mode, setMode] = useState<AuthMode>('signin')
 	const [showPassword, setShowPassword] = useState(false)
-	const [formData, setFormData] = useState({
-		name: '',
-		email: '',
-		password: '',
-		confirmPassword: ''
-	})
+	const [formData, setFormData] = useState(() => ({ ...initialFormState }))
 	const [isLoading, setIsLoading] = useState(false)
 	const [verificationCode, setVerificationCode] = useState<string[]>(Array(6).fill(''))
 	const [isResending, setIsResending] = useState(false)
 	const [timeLeft, setTimeLeft] = useState(60)
 	const [isVerified, setIsVerified] = useState(false)
 	const [error, setError] = useState('')
-	const [pendingUser, setPendingUser] = useState<any>(null)
+	const [pendingCredentials, setPendingCredentials] = useState<PendingCredentials | null>(null)
+	const verificationEmail = useMemo(() => pendingCredentials?.email || formData.email, [pendingCredentials?.email, formData.email])
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target
 		setFormData(prev => ({
 			...prev,
-			[name]: value
+			[name]: value,
 		}))
 	}
 
-	// Countdown timer effect
 	useEffect(() => {
 		if (mode === 'verify' && timeLeft > 0 && !isVerified) {
-			const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000)
+			const timer = setTimeout(() => setTimeLeft(prev => prev - 1), 1000)
 			return () => clearTimeout(timer)
 		}
 	}, [mode, timeLeft, isVerified])
 
-	// Reset verification state when switching modes
 	useEffect(() => {
 		if (mode !== 'verify') {
 			setVerificationCode(Array(6).fill(''))
 			setError('')
 			setIsVerified(false)
 			setTimeLeft(60)
+			setIsResending(false)
 		}
 	}, [mode])
 
@@ -62,7 +72,6 @@ export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) 
 		setVerificationCode(newCode)
 		setError('')
 
-		// Auto-focus next input
 		if (value && index < 5) {
 			const nextInput = document.getElementById(`code-${index + 1}`)
 			nextInput?.focus()
@@ -76,90 +85,163 @@ export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) 
 		}
 	}
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault()
-		setIsLoading(true)
-
-		if (mode === 'verify') {
-			// Handle verification submission
-			const code = verificationCode.join('')
-			if (code.length !== 6) {
-				setError('Please enter a valid 6-digit code')
-				setIsLoading(false)
-				return
-			}
-
-			// Simulate API call for verification
-			setTimeout(() => {
-				if (code === '123456') {
-					setIsVerified(true)
-					setTimeout(() => {
-						onAuthSuccess(pendingUser)
-						onClose()
-						resetForm()
-					}, 2000)
-				} else {
-					setError('Invalid verification code. Please try again.')
-				}
-				setIsLoading(false)
-			}, 1500)
-			return
-		}
-
-		// Handle sign in / sign up
-		// Simulate API call
-		setTimeout(() => {
-			const user = {
-				name: formData.name || 'Demo User',
-				email: formData.email,
-				id: Math.random().toString(36).substr(2, 9)
-			}
-
-			if (mode === 'signin') {
-				// Direct login for sign in
-				onAuthSuccess(user)
-				setIsLoading(false)
-				onClose()
-				resetForm()
-			} else {
-				// Show email verification for registration
-				setPendingUser(user)
-				setMode('verify')
-				setIsLoading(false)
-			}
-		}, 1000)
-	}
-
 	const resetForm = () => {
-		setFormData({ name: '', email: '', password: '', confirmPassword: '' })
+		setFormData({ ...initialFormState })
 		setVerificationCode(Array(6).fill(''))
 		setError('')
 		setIsVerified(false)
 		setTimeLeft(60)
-		setPendingUser(null)
+		setPendingCredentials(null)
 		setIsLoading(false)
 	}
 
-	const switchMode = () => {
-		setMode(mode === 'signin' ? 'register' : 'signin')
+	const closeAndReset = () => {
 		resetForm()
+		setMode('signin')
+		onClose()
+	}
+
+	const handleSignIn = async () => {
+		try {
+			const { email, password } = formData
+			const trimmedEmail = email.trim()
+			if (!trimmedEmail || !password) {
+				throw new Error('Please enter your email and password.')
+			}
+			const session = await login(trimmedEmail, password)
+			onAuthSuccess(session)
+			closeAndReset()
+		} catch (err) {
+			setError(err instanceof Error ? err.message : 'Unable to sign in. Please try again.')
+		} finally {
+			setIsLoading(false)
+		}
+	}
+
+	const handleRegister = async () => {
+		try {
+			const { name, email, password, confirmPassword } = formData
+			const trimmedEmail = email.trim()
+			if (!name.trim()) {
+				throw new Error('Please provide your full name.')
+			}
+			if (!trimmedEmail || !password) {
+				throw new Error('Email and password are required.')
+			}
+			if (password !== confirmPassword) {
+				throw new Error('Passwords do not match.')
+			}
+			const trimmedName = name.trim()
+			const [firstNamePart, ...rest] = trimmedName.split(' ')
+			const firstName = firstNamePart ?? trimmedName
+			const lastName = rest.join(' ')
+			await registerUser({
+				email: trimmedEmail,
+				password,
+				firstName,
+				lastName,
+			})
+			setPendingCredentials({
+				email: trimmedEmail,
+				password,
+				firstName,
+				lastName,
+			})
+			setMode('verify')
+			setTimeLeft(60)
+		} catch (err) {
+			setError(err instanceof Error ? err.message : 'Unable to sign up. Please try again.')
+		} finally {
+			setIsLoading(false)
+		}
+	}
+
+	const handleVerification = async () => {
+		try {
+			const code = verificationCode.join('')
+			if (code.length !== 6) {
+				throw new Error('Please enter the 6-digit code from your email.')
+			}
+			await verifyEmail(code)
+			setIsVerified(true)
+			if (pendingCredentials) {
+				try {
+					const session = await login(pendingCredentials.email, pendingCredentials.password)
+					onAuthSuccess(session)
+					setTimeout(() => {
+						closeAndReset()
+					}, 800)
+				} catch (loginError) {
+					setError(loginError instanceof Error ? loginError.message : 'Verification succeeded, but automatic sign-in failed. Please try signing in manually.')
+					setMode('signin')
+				}
+			} else {
+				setTimeout(() => {
+					setMode('signin')
+				}, 1200)
+			}
+		} catch (err) {
+			setError(err instanceof Error ? err.message : 'Invalid verification code. Please try again.')
+		} finally {
+			setIsLoading(false)
+		}
+	}
+
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault()
+		setError('')
+		setIsLoading(true)
+
+		if (mode === 'signin') {
+			await handleSignIn()
+			return
+		}
+
+		if (mode === 'register') {
+			await handleRegister()
+			return
+		}
+
+		await handleVerification()
+	}
+
+	const switchMode = () => {
+		if (mode === 'verify') {
+			setMode('register')
+			setPendingCredentials(null)
+			return
+		}
+		setMode(mode === 'signin' ? 'register' : 'signin')
+		setError('')
+		setFormData({ ...initialFormState })
+		setShowPassword(false)
+		setPendingCredentials(null)
 	}
 
 	const handleResendCode = async () => {
+		if (!verificationEmail) {
+			setError('Enter your email before requesting a new code.')
+			return
+		}
 		setIsResending(true)
 		setError('')
-
-		// Simulate API call
-		setTimeout(() => {
+		try {
+			await resendVerificationCode(verificationEmail.trim())
 			setTimeLeft(60)
 			setVerificationCode(Array(6).fill(''))
+		} catch (err) {
+			setError(err instanceof Error ? err.message : 'Failed to resend code. Please try again.')
+		} finally {
 			setIsResending(false)
-		}, 1000)
+		}
 	}
 
 	const handleBackToSignUp = () => {
 		setMode('register')
-		resetForm()
+		setIsVerified(false)
+		setError('')
+		setVerificationCode(Array(6).fill(''))
+		setTimeLeft(60)
 	}
 
 	if (!isOpen) return null
@@ -204,7 +286,7 @@ export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) 
 						</div>
 					</div>
 					<button
-						onClick={onClose}
+						onClick={closeAndReset}
 						className="p-1.5 sm:p-2 hover:bg-muted rounded-lg transition-colors flex-shrink-0"
 					>
 						<X className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
@@ -214,10 +296,8 @@ export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) 
 				{/* Content */}
 				<div className="p-4 sm:p-6">
 					{mode === 'verify' ? (
-						/* Verification Form */
 						<div className="space-y-6">
 							{isVerified ? (
-								/* Success State */
 								<div className="text-center space-y-4">
 									<div className="w-16 h-16 mx-auto bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
 										<CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
@@ -232,9 +312,7 @@ export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) 
 									</div>
 								</div>
 							) : (
-								/* Verification Code Input */
 								<div className="space-y-6">
-									{/* Email Display */}
 									<div className="text-center">
 										<div className="w-12 h-12 mx-auto bg-muted rounded-full flex items-center justify-center mb-3">
 											<Mail className="h-6 w-6 text-euem-blue-600 dark:text-euem-blue-400" />
@@ -243,11 +321,10 @@ export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) 
 											We sent a 6-digit verification code to:
 										</p>
 										<p className="font-medium text-foreground">
-											{formData.email}
+											{verificationEmail}
 										</p>
 									</div>
 
-									{/* 6-digit code inputs */}
 									<form onSubmit={handleSubmit} className="space-y-4">
 										<div className="space-y-2">
 											<label className="text-xs sm:text-sm font-medium text-foreground text-center block">
@@ -273,7 +350,6 @@ export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) 
 											)}
 										</div>
 
-										{/* Submit Button */}
 										<button
 											type="submit"
 											disabled={isLoading || verificationCode.join('').length !== 6}
@@ -290,7 +366,6 @@ export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) 
 										</button>
 									</form>
 
-									{/* Resend Code */}
 									<div className="text-center space-y-3">
 										<p className="text-xs sm:text-sm text-muted-foreground">
 											Didn&apos;t receive the code?
@@ -321,7 +396,6 @@ export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) 
 										)}
 									</div>
 
-									{/* Help Text */}
 									<div className="text-center">
 										<p className="text-xs text-muted-foreground">
 											Check your spam folder if you don&apos;t see the email.
@@ -331,9 +405,7 @@ export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) 
 							)}
 						</div>
 					) : (
-						/* Auth Form (Sign In / Sign Up) */
 						<form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-							{/* Name field for registration */}
 							{mode === 'register' && (
 								<div className="space-y-1.5 sm:space-y-2">
 									<label htmlFor="name" className="text-xs sm:text-sm font-medium text-foreground">
@@ -355,7 +427,6 @@ export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) 
 								</div>
 							)}
 
-							{/* Email field */}
 							<div className="space-y-1.5 sm:space-y-2">
 								<label htmlFor="email" className="text-xs sm:text-sm font-medium text-foreground">
 									Email Address
@@ -375,7 +446,6 @@ export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) 
 								</div>
 							</div>
 
-							{/* Password field */}
 							<div className="space-y-1.5 sm:space-y-2">
 								<label htmlFor="password" className="text-xs sm:text-sm font-medium text-foreground">
 									Password
@@ -402,7 +472,6 @@ export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) 
 								</div>
 							</div>
 
-							{/* Confirm Password field for registration */}
 							{mode === 'register' && (
 								<div className="space-y-1.5 sm:space-y-2">
 									<label htmlFor="confirmPassword" className="text-xs sm:text-sm font-medium text-foreground">
@@ -424,7 +493,6 @@ export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) 
 								</div>
 							)}
 
-							{/* Forgot password link for sign in */}
 							{mode === 'signin' && (
 								<div className="text-right">
 									<button
@@ -436,7 +504,12 @@ export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) 
 								</div>
 							)}
 
-							{/* Submit button */}
+							{error && (
+								<p className="text-xs sm:text-sm text-red-500 text-center">
+									{error}
+								</p>
+							)}
+
 							<button
 								type="submit"
 								disabled={isLoading}
@@ -454,7 +527,6 @@ export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) 
 								)}
 							</button>
 
-							{/* Mode switch */}
 							<div className="text-center">
 								<p className="text-xs sm:text-sm text-muted-foreground">
 									{mode === 'signin' ? "Don't have an account? " : "Already have an account? "}

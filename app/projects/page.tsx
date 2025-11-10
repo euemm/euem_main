@@ -7,25 +7,35 @@ import { ScrollToTopButton } from '../../components/ToggleButton'
 import { ProjectsPage } from '../../components/ProjectsPage'
 import { ProjectDetailPage } from '../../components/ProjectDetailPage'
 import { AuthDialog } from '../../components/AuthDialog'
+import type { AuthUser, AuthResponse } from '../../lib/auth-api'
+import { getProfile } from '../../lib/auth-api'
+import { clearStoredAuthSession, getStoredAuthSession, storeAuthSession, updateStoredUser } from '../../lib/auth-storage'
 
 export default function Projects() {
-	const [user, setUser] = useState(null)
+	const [user, setUser] = useState<AuthUser | null>(null)
 	const [theme, setTheme] = useState<'light' | 'dark'>('light')
 	const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false)
 	const [selectedProject, setSelectedProject] = useState<any>(null)
 	const [showProjectDetail, setShowProjectDetail] = useState(false)
+	const [isRestoringSession, setIsRestoringSession] = useState(false)
 
 	const handleAuthClick = () => {
 		if (user) {
-			setUser(null)
+			handleLogout()
 		} else {
 			setIsAuthDialogOpen(true)
 		}
 	}
 
-	const handleAuthSuccess = (userData: any) => {
-		setUser(userData)
+	const handleAuthSuccess = (session: AuthResponse) => {
+		setUser(session.user)
+		storeAuthSession(session)
 		setIsAuthDialogOpen(false)
+	}
+
+	const handleLogout = () => {
+		clearStoredAuthSession()
+		setUser(null)
 	}
 
 	const handleProjectClick = (project: any) => {
@@ -66,6 +76,42 @@ export default function Projects() {
 		localStorage.setItem('theme', theme)
 	}, [theme])
 
+	useEffect(() => {
+		if (typeof window === 'undefined') return
+		const stored = getStoredAuthSession()
+		if (!stored) return
+
+		setIsRestoringSession(true)
+		setUser(stored.user)
+
+		let isCancelled = false
+
+		const syncProfile = async () => {
+			try {
+				const profile = await getProfile(stored.accessToken)
+				if (!isCancelled) {
+					setUser(profile)
+					updateStoredUser(profile)
+				}
+			} catch {
+				if (!isCancelled) {
+					clearStoredAuthSession()
+					setUser(null)
+				}
+			} finally {
+				if (!isCancelled) {
+					setIsRestoringSession(false)
+				}
+			}
+		}
+
+		void syncProfile()
+
+		return () => {
+			isCancelled = true
+		}
+	}, [])
+
 	return (
 		<>
 			<TopNav
@@ -95,6 +141,9 @@ export default function Projects() {
 				onClose={() => setIsAuthDialogOpen(false)}
 				onAuthSuccess={handleAuthSuccess}
 			/>
+			{isRestoringSession && (
+				<div className="fixed inset-0 pointer-events-none" aria-hidden="true" />
+			)}
 		</>
 	)
 }

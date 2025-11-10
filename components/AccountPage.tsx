@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { User, Mail, Lock, Settings, LogOut, Trash2, ChevronRight, Shield, AlertTriangle } from 'lucide-react'
+import type { AuthUser } from '../lib/auth-api'
 
 type AccountPageProps = {
-	user: { name: string; email: string; id: string } | null
+	user: AuthUser | null
 	onLogout: () => void
 	onPasswordChange?: () => void
 	onEmailChange?: () => void
@@ -19,6 +20,11 @@ export function AccountPage({
 	onAccountDelete 
 }: AccountPageProps) {
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+	const fullName = useMemo(() => {
+		if (!user) return ''
+		const combined = `${user.firstName || ''} ${user.lastName || ''}`.trim()
+		return combined || user.email
+	}, [user])
 
 	if (!user) {
 		return (
@@ -62,7 +68,7 @@ export function AccountPage({
 								<User className="h-8 w-8 text-euem-blue-600 dark:text-euem-blue-400" />
 							</div>
 							<div>
-								<h2 className="text-xl font-semibold text-foreground">{user.name}</h2>
+								<h2 className="text-xl font-semibold text-foreground">{fullName}</h2>
 								<p className="text-muted-foreground">{user.email}</p>
 							</div>
 						</div>
