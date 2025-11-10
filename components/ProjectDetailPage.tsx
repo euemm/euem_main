@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { ArrowLeft, ExternalLink, Github, Calendar, Tag } from 'lucide-react'
+import { ExternalLink, Github, Calendar } from 'lucide-react'
 import Image from 'next/image'
 import ReactMarkdown from 'react-markdown'
 
@@ -15,19 +15,27 @@ type Project = {
 	githubUrl?: string
 	liveUrl?: string | boolean
 	category: string
+	affiliated?: boolean
 }
 
 type ProjectDetailPageProps = {
 	project: Project
 	onBack: () => void
+	onVisitProject?: (project: Project) => void
 }
 
-export function ProjectDetailPage({ project, onBack }: ProjectDetailPageProps) {
+export function ProjectDetailPage({ project, onBack, onVisitProject }: ProjectDetailPageProps) {
 	const [markdownContent, setMarkdownContent] = useState<string>('')
 	const [isLoading, setIsLoading] = useState(true)
 	const [isHeaderVisible, setIsHeaderVisible] = useState(false)
 	const [isContentVisible, setIsContentVisible] = useState(false)
 	const contentRef = useRef<HTMLDivElement>(null)
+
+	const handleVisit = () => {
+		if (project.liveUrl && typeof project.liveUrl === 'string') {
+			onVisitProject?.(project)
+		}
+	}
 
 	useEffect(() => {
 		// Load markdown content from GitHub README or local file
@@ -135,7 +143,7 @@ ${project.liveUrl && typeof project.liveUrl === 'string' ? `- [Live Demo](${proj
 			<div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
 				{/* Project Header */}
-				<div className={`max-w-4xl mx-auto mb-8 transition-all duration-700 ${isHeaderVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'}`}>
+				<div className={`max-w-4xl mx-auto mb-6 transition-all duration-700 ${isHeaderVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'}`}>
 					<div className="bg-card border border-border rounded-xl overflow-hidden">
 						{/* Project Image */}
 						<div className="relative h-64 sm:h-80 bg-gradient-to-br from-euem-blue-100 to-euem-purple-100 dark:from-euem-blue-300 dark:to-euem-purple-300">
@@ -146,28 +154,6 @@ ${project.liveUrl && typeof project.liveUrl === 'string' ? `- [Live Demo](${proj
 								sizes="(max-width: 640px) 100vw, (max-width: 896px) 100vw, 896px"
 								className="object-contain"
 							/>
-							<div className="absolute top-4 right-4 flex gap-2">
-								{project.liveUrl && typeof project.liveUrl === 'string' && (
-									<a
-										href={project.liveUrl}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="p-2 bg-white/90 dark:bg-black/90 rounded-full hover:bg-white dark:hover:bg-black transition-colors"
-									>
-										<ExternalLink className="h-4 w-4 text-foreground" />
-									</a>
-								)}
-								{project.githubUrl && (
-									<a
-										href={project.githubUrl}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="p-2 bg-white/90 dark:bg-black/90 rounded-full hover:bg-white dark:hover:bg-black transition-colors"
-									>
-										<Github className="h-4 w-4 text-foreground" />
-									</a>
-								)}
-							</div>
 						</div>
 
 						{/* Project Info */}
@@ -207,6 +193,34 @@ ${project.liveUrl && typeof project.liveUrl === 'string' ? `- [Live Demo](${proj
 						</div>
 					</div>
 				</div>
+
+				{(project.liveUrl && typeof project.liveUrl === 'string') || project.githubUrl ? (
+					<div className="max-w-4xl mx-auto mb-6">
+						<div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+							{project.liveUrl && typeof project.liveUrl === 'string' && (
+								<button
+									type="button"
+									onClick={handleVisit}
+									className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 bg-euem-blue-600 hover:bg-euem-blue-700 text-white rounded-lg font-medium transition-colors"
+								>
+									Visit Project
+									<ExternalLink className="h-4 w-4" />
+								</button>
+							)}
+							{project.githubUrl && (
+								<a
+									href={project.githubUrl}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 bg-card border border-border text-foreground rounded-lg font-medium hover:bg-muted transition-colors"
+								>
+									Visit GitHub
+									<Github className="h-4 w-4" />
+								</a>
+							)}
+						</div>
+					</div>
+				) : null}
 
 				{/* Markdown Content */}
 				<div className="max-w-4xl mx-auto">

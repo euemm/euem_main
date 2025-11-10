@@ -9,6 +9,7 @@ import { ProjectsPage } from '../components/ProjectsPage'
 import { ProjectDetailPage } from '../components/ProjectDetailPage'
 import { AccountPage } from '../components/AccountPage'
 import { AuthDialog } from '../components/AuthDialog'
+import { AffiliationNotice } from '../components/AffiliationNotice'
 import type { AuthUser, AuthResponse } from '../lib/auth-api'
 import { getProfile } from '../lib/auth-api'
 import { clearStoredAuthSession, getStoredAuthSession, storeAuthSession, updateStoredUser } from '../lib/auth-storage'
@@ -21,12 +22,16 @@ export default function Home() {
 	const [selectedProject, setSelectedProject] = useState<any>(null)
 	const [isNavigatingFromHistory, setIsNavigatingFromHistory] = useState(false)
 	const [isRestoringSession, setIsRestoringSession] = useState(false)
+	const [isAffiliationNoticeOpen, setIsAffiliationNoticeOpen] = useState(false)
+	const [pendingVisitProject, setPendingVisitProject] = useState<any>(null)
+	const [authDialogMode, setAuthDialogMode] = useState<'signin' | 'register'>('signin')
 
 	const handleAuthClick = () => {
 		if (user) {
 			handleLogout()
 		} else {
 			// If user is not logged in, open auth dialog
+			setAuthDialogMode('signin')
 			setIsAuthDialogOpen(true)
 		}
 	}
@@ -41,6 +46,8 @@ export default function Home() {
 		clearStoredAuthSession()
 		setUser(null)
 		setCurrentPage('home')
+		setPendingVisitProject(null)
+		setIsAffiliationNoticeOpen(false)
 	}
 
 	const handlePasswordChange = () => {
@@ -64,6 +71,20 @@ export default function Home() {
 	const handleProjectClick = (project: any) => {
 		setSelectedProject(project)
 		setCurrentPage('project-detail')
+	}
+
+	const handleVisitProject = (project: any) => {
+		if (!project?.liveUrl || typeof project.liveUrl !== 'string') {
+			return
+		}
+		if (project.affiliated && !user) {
+			setPendingVisitProject(project)
+			setIsAffiliationNoticeOpen(true)
+			return
+		}
+		if (typeof window !== 'undefined') {
+			window.open(project.liveUrl, '_blank', 'noopener,noreferrer')
+		}
 	}
 
 	const handleViewProjects = () => {
@@ -105,6 +126,20 @@ export default function Home() {
 			}
 		}
 	}, [])
+
+	useEffect(() => {
+		if (
+			user &&
+			pendingVisitProject &&
+			pendingVisitProject.liveUrl &&
+			typeof pendingVisitProject.liveUrl === 'string' &&
+			typeof window !== 'undefined'
+		) {
+			window.open(pendingVisitProject.liveUrl, '_blank', 'noopener,noreferrer')
+			setPendingVisitProject(null)
+			setIsAffiliationNoticeOpen(false)
+		}
+	}, [user, pendingVisitProject])
 
 	// Save theme preference
 	useEffect(() => {
@@ -284,15 +319,20 @@ export default function Home() {
 					<HomePage 
 						onViewProjects={handleViewProjects}
 						onProjectClick={handleProjectClick}
+						onVisitProject={handleVisitProject}
 					/>
 				)}
 				{currentPage === 'projects' && (
-					<ProjectsPage onProjectClick={handleProjectClick} />
+					<ProjectsPage 
+						onProjectClick={handleProjectClick}
+						onVisitProject={handleVisitProject}
+					/>
 				)}
 				{currentPage === 'project-detail' && selectedProject && (
 					<ProjectDetailPage 
 						project={selectedProject}
 						onBack={handleBackFromProjectDetail}
+						onVisitProject={handleVisitProject}
 					/>
 				)}
 				{currentPage === 'account' && (
@@ -309,8 +349,37 @@ export default function Home() {
 			<ScrollToTopButton />
 			<AuthDialog
 				isOpen={isAuthDialogOpen}
-				onClose={() => setIsAuthDialogOpen(false)}
+				onClose={() => {
+					setIsAuthDialogOpen(false)
+					setAuthDialogMode('signin')
+				}}
 				onAuthSuccess={handleAuthSuccess}
+				initialMode={authDialogMode}
+			/>
+			<AffiliationNotice
+				isOpen={isAffiliationNoticeOpen}
+				projectName={pendingVisitProject?.title}
+				onClose={() => {
+					setIsAffiliationNoticeOpen(false)
+					setPendingVisitProject(null)
+				}}
+				onAuthRequest={() => {
+					setIsAffiliationNoticeOpen(false)
+					setAuthDialogMode('register')
+					setIsAuthDialogOpen(true)
+				}}
+				onVisitAnyway={() => {
+					if (
+						pendingVisitProject &&
+						pendingVisitProject.liveUrl &&
+						typeof pendingVisitProject.liveUrl === 'string' &&
+						typeof window !== 'undefined'
+					) {
+						window.open(pendingVisitProject.liveUrl, '_blank', 'noopener,noreferrer')
+					}
+					setPendingVisitProject(null)
+					setIsAffiliationNoticeOpen(false)
+				}}
 			/>
 			{isRestoringSession && (
 				<div className="fixed inset-0 pointer-events-none" aria-hidden="true" />

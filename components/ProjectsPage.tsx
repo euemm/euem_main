@@ -15,6 +15,7 @@ type Project = {
 	githubUrl?: string
 	liveUrl?: string | boolean
 	category: string
+	affiliated?: boolean
 }
 
 // Use projects from JSON data
@@ -22,9 +23,10 @@ const mockProjects: Project[] = projectsData.projects
 
 type ProjectsPageProps = {
 	onProjectClick?: (project: Project) => void
+	onVisitProject?: (project: Project) => void
 }
 
-export function ProjectsPage({ onProjectClick }: ProjectsPageProps) {
+export function ProjectsPage({ onProjectClick, onVisitProject }: ProjectsPageProps) {
 	const [selectedCategory, setSelectedCategory] = useState<string>('all')
 	const [searchQuery, setSearchQuery] = useState('')
 	const [visibleProjects, setVisibleProjects] = useState<Set<string>>(new Set())
@@ -177,15 +179,16 @@ export function ProjectsPage({ onProjectClick }: ProjectsPageProps) {
 								/>
 								<div className="absolute top-3 sm:top-4 right-3 sm:right-4 flex gap-1.5 sm:gap-2">
 									{project.liveUrl && project.liveUrl !== 'false' && typeof project.liveUrl === 'string' && (
-										<a
-											href={project.liveUrl}
-											target="_blank"
-											rel="noopener noreferrer"
-											onClick={(e) => e.stopPropagation()}
+										<button
+											type="button"
+											onClick={(e) => {
+												e.stopPropagation()
+												onVisitProject?.(project)
+											}}
 											className="p-1.5 sm:p-2 bg-white/90 dark:bg-black/90 rounded-full hover:bg-white dark:hover:bg-black transition-colors"
 										>
 											<ExternalLink className="h-3 w-3 sm:h-4 sm:w-4 text-foreground" />
-										</a>
+										</button>
 									)}
 									{project.githubUrl && (
 										<a

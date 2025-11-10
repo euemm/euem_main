@@ -20,6 +20,7 @@ type FeaturedProject = {
 	technologies: string[]
 	githubUrl?: string
 	liveUrl?: string | boolean
+	affiliated?: boolean
 }
 
 const skills: Skill[] = [
@@ -41,9 +42,10 @@ const featuredProjects: FeaturedProject[] = projectsData.projects.filter(project
 type HomePageProps = {
 	onProjectClick?: (project: FeaturedProject) => void
 	onViewProjects?: () => void
+	onVisitProject?: (project: FeaturedProject) => void
 }
 
-export function HomePage({ onProjectClick, onViewProjects }: HomePageProps) {
+export function HomePage({ onProjectClick, onViewProjects, onVisitProject }: HomePageProps) {
 	const [activeSkillCategory, setActiveSkillCategory] = useState<string>('all')
 	const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set())
 	const [isMounted, setIsMounted] = useState(false)
@@ -316,15 +318,16 @@ export function HomePage({ onProjectClick, onViewProjects }: HomePageProps) {
 								/>
 								<div className="absolute top-3 sm:top-4 right-3 sm:right-4 flex gap-2">
 									{project.liveUrl && typeof project.liveUrl === 'string' && (
-										<a
-											href={project.liveUrl}
-											target="_blank"
-											rel="noopener noreferrer"
-											onClick={(e) => e.stopPropagation()}
+										<button
+											type="button"
+											onClick={(e) => {
+												e.stopPropagation()
+												onVisitProject?.(project)
+											}}
 											className="p-1.5 sm:p-2 bg-white/90 dark:bg-black/90 rounded-full hover:bg-white dark:hover:bg-black transition-colors"
 										>
 											<ExternalLink className="h-3 w-3 sm:h-4 sm:w-4 text-foreground" />
-										</a>
+										</button>
 									)}
 										{project.githubUrl && (
 											<a

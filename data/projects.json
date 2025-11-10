@@ -1,113 +1,121 @@
 {
-  "projects": [
-    {
-      "id": "1",
-      "title": "WebRTC Client",
-      "description": "A frontend project for WebRTC video chat application. Just like Zoom, but for free.",
-      "image": "/WebRTC.png",
-      "category": "Frontend",
-      "technologies": ["WebRTC", "Next.js", "React", "TypeScript", "Tailwind CSS", "Simple-Peer", "WebSocket"],
-      "liveUrl": "https://euem.net/web-rtc/",
-      "githubUrl": "https://github.com/euemm/EUEM_WEB_RTC",
-      "date": "2025-10-12",
-      "featured": true
-    },
-    {
-      "id": "2",
-      "title": "SSH Client",
-      "description": "A frontend project for SSH client application with Liquid Glass UI.",
-      "image": "/ReactJS.png",
-      "category": "Frontend",
-      "technologies": ["Next.js", "React", "TypeScript", "Tailwind CSS"],
-      "liveUrl": "https://euem.net/ssh/",
-      "githubUrl": "https://github.com/euemm/SSH_CLIENT",
-      "date": "2025-10-12",
-      "featured": true
-    },
-    {
-      "id": "3",
-      "title": "WebRTC Server",
-      "description": "A secure backend server for WebRTC video chat application.",
-      "image": "/FastAPI.png",
-      "category": "Backend",
-      "technologies": ["JWT", "Python", "FastAPI", "WebSocket", "STUN", "TURN", "WebRTC"],
-      "liveUrl": false,
-      "githubUrl": "https://github.com/euemm/EUEM_WEB_RTC_SERVER",
-      "date": "2025-10-10",
-      "featured": false
-    },
-    {
-      "id": "4",
-      "title": "SSH WebSocket Server",
-      "description": "A secure backend server for websocket connection between SSH client and server.",
-      "image": "/NodeJS.png",
-      "category": "Backend",
-      "technologies": ["Node.js", "Express", "WebSocket", "JWT", "OpenSSH"],
-      "liveUrl": false,
-      "githubUrl": "https://github.com/euemm/EUEM_WEB_SOCKET",
-      "date": "2025-10-11",
-      "featured": false
-    },
-    {
-      "id": "5",
-      "title": "Portfolio Website",
-      "description": "A modern, responsive portfolio website showcasing projects and skills with smooth animations and dark mode support.",
-      "image": "/NextJS.png",
-      "category": "Frontend",
-      "technologies": ["Next.js", "React", "TypeScript", "Tailwind CSS"],
-      "liveUrl": "https://euem.net/",
-      "githubUrl": "https://github.com/euemm/EUEM_MAIN",
-      "date": "2024-05-12",
-      "featured": false
-    },
-    {
-      "id": "6",
-      "title": "Brandeis University OAFRWP",
-      "description": "A frontend project for Brandeis University Open Access Fund Request Work Process application.",
-      "image": "/BrandeisLibrary.png",
-      "category": "Full Stack",
-      "technologies": ["Node.js", "Express", "JWT", "React", "TypeScript", "Tailwind CSS"],
-      "liveUrl": "https://oafund.library.brandeis.edu/",
-      "githubUrl": "https://github.com/euemm/OAFRWP",
-      "date": "2025-10-20",
-      "featured": false
-    },
-    {
-      "id": "7",
-      "title": "EUEM Main Server",
-      "description": "A java backend server with repository integration and smtp integration for EUEM portfolio website and its subsidiary projects.",
-      "image": "/SpringFramework.png",
-      "category": "Backend",
-      "technologies": ["Java", "Spring Framework", "Spring Boot", "Spring Security", "Spring DATA JPA", "PostgreSQL", "Gradle", "JWT", "BCrypt", "SMTP", "JavaMailSender", "Lombok", "Hibernate"],
-      "liveUrl": false,
-      "githubUrl": "https://github.com/euemm/euem_main_server",
-      "date": "2025-10-26",
-      "featured": true
-    },
-    {
-      "id": "8",
-      "title": "EUEM SMTP",
-      "description": "An SMTP server with Postfix, Dovecot, AMS SES with full security and monitoring.",
-      "image": "/SMTP.png",
-      "category": "Backend",
-      "technologies": ["Postfix", "Dovecot", "AMS SES"],
-      "liveUrl": false,
-      "githubUrl": "https://github.com/euemm/euem_smtp",
-      "date": "2025-10-28",
-      "featured": false
-    },
-    {
-      "id": "9",
-      "title": "EUEM PostgreSQL Database",
-      "description": "A PostgreSQL database with full security and monitoring on Docker container.",
-      "image": "/PostgreSQL.png",
-      "category": "Backend",
-      "technologies": ["SQL", "PostgreSQL", "Docker", "Docker Compose"],
-      "liveUrl": false,
-      "githubUrl": "https://github.com/euemm/euem_postgres",
-      "date": "2025-10-30",
-      "featured": false
-    }
-    
-  ]
+	"projects": [
+		{
+			"id": "1",
+			"title": "WebRTC Client",
+			"description": "A frontend project for WebRTC video chat application. Just like Zoom, but for free.",
+			"image": "/WebRTC.png",
+			"category": "Frontend",
+			"technologies": ["WebRTC", "Next.js", "React", "TypeScript", "Tailwind CSS", "Simple-Peer", "WebSocket"],
+			"liveUrl": "https://euem.net/web-rtc/",
+			"githubUrl": "https://github.com/euemm/EUEM_WEB_RTC",
+			"date": "2025-10-12",
+			"featured": true,
+			"affiliated": true
+		},
+		{
+			"id": "2",
+			"title": "SSH Client",
+			"description": "A frontend project for SSH client application with Liquid Glass UI.",
+			"image": "/ReactJS.png",
+			"category": "Frontend",
+			"technologies": ["Next.js", "React", "TypeScript", "Tailwind CSS"],
+			"liveUrl": "https://euem.net/ssh/",
+			"githubUrl": "https://github.com/euemm/SSH_CLIENT",
+			"date": "2025-10-12",
+			"featured": true,
+			"affiliated": true
+		},
+		{
+			"id": "3",
+			"title": "WebRTC Server",
+			"description": "A secure backend server for WebRTC video chat application.",
+			"image": "/FastAPI.png",
+			"category": "Backend",
+			"technologies": ["JWT", "Python", "FastAPI", "WebSocket", "STUN", "TURN", "WebRTC"],
+			"liveUrl": false,
+			"githubUrl": "https://github.com/euemm/EUEM_WEB_RTC_SERVER",
+			"date": "2025-10-10",
+			"featured": false,
+			"affiliated": false
+		},
+		{
+			"id": "4",
+			"title": "SSH WebSocket Server",
+			"description": "A secure backend server for websocket connection between SSH client and server.",
+			"image": "/NodeJS.png",
+			"category": "Backend",
+			"technologies": ["Node.js", "Express", "WebSocket", "JWT", "OpenSSH"],
+			"liveUrl": false,
+			"githubUrl": "https://github.com/euemm/EUEM_WEB_SOCKET",
+			"date": "2025-10-11",
+			"featured": false,
+			"affiliated": false
+		},
+		{
+			"id": "5",
+			"title": "Portfolio Website",
+			"description": "A modern, responsive portfolio website showcasing projects and skills with smooth animations and dark mode support.",
+			"image": "/NextJS.png",
+			"category": "Frontend",
+			"technologies": ["Next.js", "React", "TypeScript", "Tailwind CSS"],
+			"liveUrl": "https://euem.net/",
+			"githubUrl": "https://github.com/euemm/EUEM_MAIN",
+			"date": "2024-05-12",
+			"featured": false,
+			"affiliated": true
+		},
+		{
+			"id": "6",
+			"title": "Brandeis University OAFRWP",
+			"description": "A frontend project for Brandeis University Open Access Fund Request Work Process application.",
+			"image": "/BrandeisLibrary.png",
+			"category": "Full Stack",
+			"technologies": ["Node.js", "Express", "JWT", "React", "TypeScript", "Tailwind CSS"],
+			"liveUrl": "https://oafund.library.brandeis.edu/",
+			"githubUrl": "https://github.com/euemm/OAFRWP",
+			"date": "2025-10-20",
+			"featured": false,
+			"affiliated": false
+		},
+		{
+			"id": "7",
+			"title": "EUEM Main Server",
+			"description": "A java backend server with repository integration and smtp integration for EUEM portfolio website and its subsidiary projects.",
+			"image": "/SpringFramework.png",
+			"category": "Backend",
+			"technologies": ["Java", "Spring Framework", "Spring Boot", "Spring Security", "Spring DATA JPA", "PostgreSQL", "Gradle", "JWT", "BCrypt", "SMTP", "JavaMailSender", "Lombok", "Hibernate"],
+			"liveUrl": false,
+			"githubUrl": "https://github.com/euemm/euem_main_server",
+			"date": "2025-10-26",
+			"featured": true,
+			"affiliated": false
+		},
+		{
+			"id": "8",
+			"title": "EUEM SMTP",
+			"description": "An SMTP server with Postfix, Dovecot, AMS SES with full security and monitoring.",
+			"image": "/SMTP.png",
+			"category": "Backend",
+			"technologies": ["Postfix", "Dovecot", "AMS SES"],
+			"liveUrl": false,
+			"githubUrl": "https://github.com/euemm/euem_smtp",
+			"date": "2025-10-28",
+			"featured": false,
+			"affiliated": false
+		},
+		{
+			"id": "9",
+			"title": "EUEM PostgreSQL Database",
+			"description": "A PostgreSQL database with full security and monitoring on Docker container.",
+			"image": "/PostgreSQL.png",
+			"category": "Backend",
+			"technologies": ["SQL", "PostgreSQL", "Docker", "Docker Compose"],
+			"liveUrl": false,
+			"githubUrl": "https://github.com/euemm/euem_postgres",
+			"date": "2025-10-30",
+			"featured": false,
+			"affiliated": false
+		}
+	]
 }

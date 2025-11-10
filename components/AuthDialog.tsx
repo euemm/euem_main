@@ -10,6 +10,7 @@ type AuthDialogProps = {
 	isOpen: boolean
 	onClose: () => void
 	onAuthSuccess: (session: AuthResponse) => void
+	initialMode?: AuthMode
 }
 
 type PendingCredentials = {
@@ -26,8 +27,8 @@ const initialFormState = {
 	confirmPassword: '',
 }
 
-export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) {
-	const [mode, setMode] = useState<AuthMode>('signin')
+export function AuthDialog({ isOpen, onClose, onAuthSuccess, initialMode = 'signin' }: AuthDialogProps) {
+	const [mode, setMode] = useState<AuthMode>(initialMode)
 	const [showPassword, setShowPassword] = useState(false)
 	const [formData, setFormData] = useState(() => ({ ...initialFormState }))
 	const [isLoading, setIsLoading] = useState(false)
@@ -46,6 +47,12 @@ export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) 
 			[name]: value,
 		}))
 	}
+
+	useEffect(() => {
+		if (isOpen) {
+			setMode(initialMode)
+		}
+	}, [isOpen, initialMode])
 
 	useEffect(() => {
 		if (mode === 'verify' && timeLeft > 0 && !isVerified) {
@@ -97,7 +104,7 @@ export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) 
 
 	const closeAndReset = () => {
 		resetForm()
-		setMode('signin')
+		setMode(initialMode)
 		onClose()
 	}
 
@@ -173,7 +180,7 @@ export function AuthDialog({ isOpen, onClose, onAuthSuccess }: AuthDialogProps) 
 					}, 800)
 				} catch (loginError) {
 					setError(loginError instanceof Error ? loginError.message : 'Verification succeeded, but automatic sign-in failed. Please try signing in manually.')
-					setMode('signin')
+		setMode(initialMode)
 				}
 			} else {
 				setTimeout(() => {
